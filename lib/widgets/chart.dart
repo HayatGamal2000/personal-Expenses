@@ -28,12 +28,12 @@ class Chart extends StatelessWidget {
         'day': DateFormat.E().format(weekDay).substring(0, 1),
         'price': totalSum
       };
-    });
+    }).reversed.toList();
   }
 
   double get totalSpending {
     return groupedTransactionValue.fold(0.0, (sum , item) {
-      return sum + item['amount'] ;
+      return sum + item['price'] ;
     });
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 
 import './widgets/transaction_list.dart';
 import './widgets/chart.dart';
@@ -13,7 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Personal Expenses',
       theme: ThemeData(
-          primaryColor: Colors.blue[900], accentColor: Colors.pinkAccent),
+        primaryColor: Colors.blue[900],
+        accentColor: Colors.pink[300],
+      ),
       home: MyHomePage(),
     );
   }
@@ -40,22 +43,33 @@ class _MyHomeState extends State<MyHomePage> {
     //),
   ];
 
+  bool _showChart = false;
+
   List<Transaction> get _recentTransactions {
     return _userTransactions.where((tx) {
-      return tx.date.isAfter(DateTime.now().subtract(
-          Duration(days: 7),),);
+      return tx.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
     }).toList();
   }
 
-  void _addNewTransaction(String nTitle, double nPrice) {
+  void _addNewTransaction(String nTitle, double nPrice, DateTime chosenDate) {
     final newTrans = Transaction(
         title: nTitle,
         price: nPrice,
-        date: DateTime.now(),
+        date: chosenDate,
         id: DateTime.now().toString());
 
     setState(() {
       _userTransactions.add(newTrans);
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransactions.removeWhere((element) => element.id == id);
     });
   }
 
@@ -72,41 +86,78 @@ class _MyHomeState extends State<MyHomePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final appBar = AppBar(
+      centerTitle: true,
+      title: Text('Personal Expenses'),
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.add,
+          ),
+          splashColor: Theme.of(context).accentColor,
+          onPressed: () {
+            startAdding(context);
+          },
+        )
+      ],
+    );
+    final mediaQuery = MediaQuery.of(context);
+    final _isLandScape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    final txListWidget =Container(
+        height: (mediaQuery.size.height -
+            appBar.preferredSize.height -
+            mediaQuery.padding.top) *
+            0.68,
+        child:
+        TransactionList(_userTransactions, _deleteTransaction));
+
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Personal Expenses'),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.add,
-            ),
-            splashColor: Theme
-                .of(context)
-                .accentColor,
-            onPressed: () {
-              startAdding(context);
-            },
-          )
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Chart(_recentTransactions),
-            TransactionList(_userTransactions),
+            if(_isLandScape)Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Show Chart'),
+                Switch(
+                    value: _showChart,
+                    onChanged: (val) {
+                      setState(() {
+                        _showChart = val;
+                      });
+                    })
+              ],
+            ),
+            if(!_isLandScape)Container(
+              height: (mediaQuery.size.height -
+                  appBar.preferredSize.height -
+                  mediaQuery.padding.top) *
+                  0.3,
+              child: Chart(_recentTransactions),
+            ),
+            if(!_isLandScape)txListWidget,
+            if(_isLandScape)
+            _showChart
+                ? Container(
+                    height: (mediaQuery.size.height -
+                            appBar.preferredSize.height -
+                        mediaQuery.padding.top) *
+                        0.7,
+                    child: Chart(_recentTransactions),
+                  )
+                : txListWidget,
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        backgroundColor: Theme
-            .of(context)
-            .primaryColor,
+        backgroundColor: Theme.of(context).primaryColor,
         onPressed: () {
           startAdding(context);
         },

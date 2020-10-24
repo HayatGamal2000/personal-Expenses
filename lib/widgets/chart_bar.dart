@@ -9,42 +9,50 @@ class ChartBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FittedBox(child: Text('${spendingAmount.toStringAsFixed(0)} LE')),
-        SizedBox(
-          height: 4,
-        ),
-        Container(
-          height: 60,
-          width: 10,
-          child: Stack(
-            children: [
-           Container(
-             decoration: BoxDecoration(
-               border: Border.all(color:Theme.of(context).primaryColor,width: 1 ),
-               color: Colors.grey,
-               borderRadius : BorderRadius.circular(10),
-             ),
-           ),
-        FractionallySizedBox(
-          heightFactor: spendingPctOfTotal ,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).accentColor ,
-              borderRadius : BorderRadius.circular(10),
+    return LayoutBuilder(builder:(ctx , constrains){
+      return Column(
+        children: [
+          Container(
+              height: constrains.maxHeight * 0.11,
+              child: FittedBox(child: Text(spendingAmount.toStringAsFixed(0)))),
+          Container (
+              height: constrains.maxHeight * 0.11,
+              child: Text('LE')),
+          SizedBox(
+            height:constrains.maxHeight * 0.06,
+          ),
+          Container(
+            height: constrains.maxHeight * 0.55,
+            width: 10,
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color:Theme.of(context).primaryColor,width: 1 ),
+                    color: Colors.grey[400],
+                    borderRadius : BorderRadius.circular(10),
+                  ),
+                ),
+                FractionallySizedBox(
+                  heightFactor: spendingPctOfTotal ,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor ,
+                      borderRadius : BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-            ],
+          SizedBox(
+            height: constrains.maxHeight * 0.06,
           ),
-        ),
-        SizedBox(
-          height: 4,
-        ),
-        Text(label),
-      ],
-    )
-    ;
+          Container(
+              height: constrains.maxHeight * 0.11,
+              child: Text(label)),
+        ],
+      );
+    });
   }
 }
